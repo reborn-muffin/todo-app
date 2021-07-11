@@ -2,6 +2,10 @@ import { Grid, Typography, Paper, Divider, Box, Checkbox, IconButton } from "@ma
 import { DeleteOutlined, TodayOutlined } from '@material-ui/icons'
 import propTypes from 'prop-types'
 import { makeStyles } from "@material-ui/core/styles"
+import { todosSelector } from "../../selectors/todosSelectors";
+import { useDispatch, useSelector } from "react-redux";
+import { useEffect } from "react";
+import { getTodosAsync } from "../../slices/todosSlice";
 
 const useStyles = makeStyles((theme) => ({
     divider:{
@@ -16,18 +20,17 @@ const useStyles = makeStyles((theme) => ({
             width: '80%',
             height: 'auto'
         },
-        width: '24%',
+        width: '27%',
         height: '270px',
         display: 'flex',
         alignItems: 'center',
-        margin: `${theme.spacing(3)}px ${theme.spacing(3)}px`,
-
+        margin: `${theme.spacing(3)}px ${theme.spacing(4.1)}px`,
     },
     cardContainer:{
         display: 'flex',
-        justifyContent: 'start',
+        justifyContent: 'flex-start',
         flexWrap: 'wrap',
-        overflow: 'hidden',
+        width: '100%'
     },
     cardContent:{
         width: '90%',
@@ -51,7 +54,13 @@ const useStyles = makeStyles((theme) => ({
 
 
 export default function TodoList(props){
+    const dispatch = useDispatch();
+    const todos = useSelector(todosSelector);
     const classes = useStyles();
+    
+    useEffect(() => {
+        dispatch(getTodosAsync());
+    }, [])
 
     return (
         <Grid container justify='center' direction='column'>
@@ -63,16 +72,16 @@ export default function TodoList(props){
             </Grid>
 
             <Divider className={classes.divider} />
-
             <Grid item>
                 <Box className={classes.cardContainer}>
-                    <Paper className={classes.cardPaper}>
+                {(todos.length > 0) && todos.map(todo => {
+                    return <Paper className={classes.cardPaper}>
                         <Box className={classes.cardContent}>
                             <Grid container>
                                 <Grid item xs>
                                     <Box className={classes.cardHead}>
                                         <Typography variant='h5'>
-                                            Todo1
+                                            {todo.title}
                                         </Typography>
                                         <Box>
                                             <IconButton>
@@ -85,31 +94,32 @@ export default function TodoList(props){
 
                                 <Grid item xs> 
                                     <Typography variant='body1' className={classes.cardBody}>
-                                        loremlo remloremlore e e e e e emloremlore mloremloremloreml oremloremloreml oremloremloremloreml oremloremloreml oremloremloremlorem
+                                        {todo.text}
                                     </Typography>
                                 </Grid>
 
                                 <Grid item xs>
                                     <Box className={classes.cardFooter}>
                                         <Typography variant='overline'>
-                                            Hight pririty
+                                            {todo.priority}
                                         </Typography>
                                         <Typography>
-                                            24.02.2021
+                                            {todo.date}
                                         </Typography>
                                     </Box>
                                 </Grid>
                             </Grid>
                         </Box>
                     </Paper>
+                })}
 
-                    <Paper className={classes.cardPaper}>
+                <Paper className={classes.cardPaper}>
                         <Box className={classes.cardContent}>
                             <Grid container>
                                 <Grid item xs>
                                     <Box className={classes.cardHead}>
                                         <Typography variant='h5'>
-                                            Todo1
+                                            qq
                                         </Typography>
                                         <Box>
                                             <IconButton>
@@ -122,17 +132,17 @@ export default function TodoList(props){
 
                                 <Grid item xs> 
                                     <Typography variant='body1' className={classes.cardBody}>
-                                        loremlo remloremlore e e e e e emloremlore mloremloremloreml oremloremloreml oremloremloremloreml oremloremloreml oremloremloremlorem
+                                        qqqqqqqqqqqqqqqdddddddddddddddd 
                                     </Typography>
                                 </Grid>
 
                                 <Grid item xs>
                                     <Box className={classes.cardFooter}>
                                         <Typography variant='overline'>
-                                            Hight pririty
+                                            222222
                                         </Typography>
                                         <Typography>
-                                            24.02.2021
+                                            dddddddd
                                         </Typography>
                                     </Box>
                                 </Grid>
@@ -141,7 +151,6 @@ export default function TodoList(props){
                     </Paper>
                 </Box>
             </Grid>
-            
         </Grid>
     )
 }
