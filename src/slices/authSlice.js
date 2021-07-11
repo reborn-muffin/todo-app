@@ -1,5 +1,4 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { db } from '../firebase'
 import { auth } from '../firebase'
 
 export const signupAsync = (email, password) => dispatch => {
@@ -49,4 +48,4 @@ const authSlice = createSlice({
 });
 
 export default authSlice.reducer;
-export const { signin, signup, signout, catchError, resetPassword } = authSlice.actions;
+export const { signin, signup, signout, catchError } = authSlice.actions;

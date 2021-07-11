@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link, useHistory } from 'react-router-dom'
 import { signupAsync } from '../slices/authSlice'
-import { currentUserSelector, emailErrorSelector, passwordErrorSelector } from './selectors/authSelectors';
+import { currentUserSelector, emailErrorSelector, passwordErrorSelector } from '../selectors/authSelectors';
 
 export default function Signup(){
     const dispatch = useDispatch();

@@ -1,4 +1,5 @@
-import { Toolbar, Container, Tooltip, AppBar, Button, Hidden, Typography, Grid, Drawer, Divider, MenuItem, ListItemIcon, Fab, Paper } from "@material-ui/core"
+import { Toolbar, Container, Tooltip, AppBar, Button, Hidden, Typography, Grid, Drawer,
+    Divider, MenuItem, ListItemIcon, Fab, Paper } from "@material-ui/core"
 import TodoList from "./todoList"
 import { makeStyles } from "@material-ui/core/styles"
 import { TodayOutlined, MenuOutlined, DateRangeOutlined, CalendarTodayOutlined, EventBusyOutlined, AddOutlined } from '@material-ui/icons'
@@ -6,6 +7,8 @@ import { useState } from "react"
 import { signout } from "../../slices/authSlice"
 import { useDispatch } from "react-redux"
 import { useHistory } from "react-router-dom"
+import CreateTodoModal from "./modalTodo/modalCreateTodo"
+import ViewTodoModal from './modalTodo/modalViewTodo'
 
 const useStyles = makeStyles((theme) => ({
     container: {
@@ -16,30 +19,46 @@ const useStyles = makeStyles((theme) => ({
         height: `calc(100vh - ${theme.spacing(8)}px)`,
     },
     fab:{
-        position: 'absolute',
+        [theme.breakpoints.down('xs')]:{
+            right: theme.spacing(3),
+        },
+        position: 'fixed',
         bottom: theme.spacing(5),
-        right: theme.spacing(3),
+        right: theme.spacing(40),
     },
     paper:{
         paddingTop: theme.spacing(5),
         height: `calc(100% - ${theme.spacing(5)}px)`,
         position: 'relative',
+        overflow: 'auto'
     },
 }));
 
 export default function TodoPage(){
     const history = useHistory();
-    const [isOpen, setIsOpen] = useState(true);
+    const [isOpen, setIsOpen] = useState(false);
+    const [isOpenModal, setIsOpenModal] = useState(false);
+    const [todolistTitle, setTodolistTitle] = useState('Today');
     const dispatch = useDispatch();
+    
     const classes = useStyles();
 
     function toogleDrawer(){
         setIsOpen(!isOpen);
     }
+
+    function handleModal(){
+        setIsOpenModal(!isOpenModal);
+    }
     
     function signoutHandle(){
         dispatch(signout());
+
         history.push('/login');
+    }
+
+    function handleMenu(value){
+        setTodolistTitle(value);
     }
 
     return (
@@ -60,7 +79,7 @@ export default function TodoPage(){
                     <Grid container>
                         <Grid item>
                             <Hidden xsDown>
-                                <MenuItem>
+                                <MenuItem onClick={() => handleMenu('Today')}>
                                     <ListItemIcon>
                                         <TodayOutlined color='primary' />
                                     </ListItemIcon>
@@ -69,7 +88,7 @@ export default function TodoPage(){
 
                                 <Divider />
 
-                                <MenuItem>
+                                <MenuItem onClick={() => handleMenu('Next')}>
                                     <ListItemIcon>
                                         <DateRangeOutlined color='primary' />
                                     </ListItemIcon>
@@ -78,7 +97,7 @@ export default function TodoPage(){
 
                                 <Divider />
 
-                                <MenuItem>
+                                <MenuItem onClick={() => handleMenu('Tomorrow')}>
                                     <ListItemIcon>
                                         <CalendarTodayOutlined color='primary' />
                                     </ListItemIcon>
@@ -87,7 +106,7 @@ export default function TodoPage(){
 
                                 <Divider />
 
-                                <MenuItem>
+                                <MenuItem onClick={() => handleMenu('Overdue')}>
                                     <ListItemIcon>
                                         <EventBusyOutlined color='primary' />
                                     </ListItemIcon>
@@ -96,7 +115,7 @@ export default function TodoPage(){
                             </Hidden>
                             <Hidden smUp>
                                 <Drawer open={isOpen} onClose={toogleDrawer}>
-                                    <MenuItem>
+                                    <MenuItem onClick={() => handleMenu('Today')}>
                                         <ListItemIcon>
                                             <TodayOutlined color='primary' />
                                         </ListItemIcon>
@@ -105,7 +124,7 @@ export default function TodoPage(){
 
                                     <Divider />
 
-                                    <MenuItem>
+                                    <MenuItem onClick={() => handleMenu('Next')}>
                                         <ListItemIcon>
                                             <DateRangeOutlined color='primary' />
                                         </ListItemIcon>
@@ -114,7 +133,7 @@ export default function TodoPage(){
 
                                     <Divider />
 
-                                    <MenuItem>
+                                    <MenuItem onClick={() => handleMenu('Tomorrow')}>
                                         <ListItemIcon>
                                             <CalendarTodayOutlined color='primary' />
                                         </ListItemIcon>
@@ -123,7 +142,7 @@ export default function TodoPage(){
 
                                     <Divider />
 
-                                    <MenuItem>
+                                    <MenuItem onClick={() => handleMenu('Overdue')}>
                                         <ListItemIcon>
                                             <EventBusyOutlined color='primary' />
                                         </ListItemIcon>
@@ -134,14 +153,16 @@ export default function TodoPage(){
                         </Grid>
 
                         <Grid item xs>
-                            <TodoList title='Today' />
+                            <TodoList title={todolistTitle} />
                         </Grid>
                         
                         <Tooltip title='Create task'>
-                            <Fab color='secondary' className={classes.fab}>
+                            <Fab color='secondary' className={classes.fab} onClick={ handleModal }>
                                 <AddOutlined />
                             </Fab>
                         </Tooltip>
+
+                        <CreateTodoModal isOpen={isOpenModal} closeModal={ handleModal } />
                     </Grid>
                 </Paper>
             </Container>
