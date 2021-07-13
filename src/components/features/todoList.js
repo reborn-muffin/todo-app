@@ -159,5 +159,5 @@ export default function TodoList(props){
 
 TodoList.propTypes = {
     title: propTypes.string,
-    selector: propTypes.func.isRequired
+    selector: propTypes.object.isRequired
 }

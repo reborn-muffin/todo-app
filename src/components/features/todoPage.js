@@ -54,6 +54,7 @@ export default function TodoPage(){
     
     function signoutHandle(){
         dispatch(signout());
+        dispatch({ type: 'SIGN_OUT' });
 
         history.push('/login');
     }
