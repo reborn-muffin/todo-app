@@ -1,16 +1,19 @@
 import { Grid, Typography, Paper, Divider, Box, Checkbox, IconButton } from "@material-ui/core"
-import { DeleteOutlined, TodayOutlined } from '@material-ui/icons'
+import { DeleteOutlined, TodayOutlined, Done, Clear } from '@material-ui/icons'
 import propTypes from 'prop-types'
 import { makeStyles } from "@material-ui/core/styles"
-import { todosSelector } from "../../selectors/todosSelectors";
 import { useDispatch, useSelector } from "react-redux";
 import { useEffect, useState } from "react";
-import { getTodosAsync, deleteTodoAsync } from "../../slices/todosSlice";
+import { getTodosAsync, deleteTodoAsync, completeTodoAsync } from "../../slices/todosSlice";
 import ModalViewTodo from './modalTodo/modalViewTodo'
 import { nanoid } from "nanoid";
 
 const useStyles = makeStyles((theme) => ({
     divider:{
+        [theme.breakpoints.down('xs')]:{
+            marginTop: theme.spacing(2),
+            marginBottom: theme.spacing(4)
+        },
         width: '70%',
         marginLeft: 'auto',
         marginRight: 'auto',
@@ -59,13 +62,18 @@ const useStyles = makeStyles((theme) => ({
         alignItems: 'center',
         justifyContent: 'space-between',
         width: '100%'
+    },
+    listTitle:{
+        [theme.breakpoints.down('xs')]:{
+            fontSize: '2.4rem',
+        }
     }
 }));
 
 
 export default function TodoList(props){
     const dispatch = useDispatch();
-    const todos = useSelector(todosSelector);
+    const todos = useSelector(props.selector.value);
     const classes = useStyles();
     const [isOpen, setIsOpen] = useState(false);
     const [todo, setTodo] = useState();
@@ -78,6 +86,10 @@ export default function TodoList(props){
         dispatch(deleteTodoAsync(id));
     }
 
+    function handleComplete(obj){
+        dispatch(completeTodoAsync(obj));
+    }
+
     function handleView(obj){
         setTodo(obj);
         setIsOpen(true);
@@ -88,51 +100,55 @@ export default function TodoList(props){
             <Grid item>
                 <Box display='flex' alignItems='center' justifyContent='center'>
                     <TodayOutlined fontSize='large' color='primary' />
-                    <Typography variant='h3'>{props.title}</Typography>
+                    <Typography variant='h3' className={classes.listTitle}>{props.title}</Typography>
                 </Box>                
             </Grid>
 
             <Divider className={classes.divider} />
             <Grid item>
                 <Box className={classes.cardContainer}>
-                {(todos.length > 0) && todos.map(todo => {
-                    return <Paper key={nanoid()} className={classes.cardPaper} onClick={() => handleView(todo)}>
+                {(todos.length > 0) ? todos.map(currentTodo => {
+                    return <Paper key={nanoid()} className={classes.cardPaper} onClick={() => handleView(currentTodo)}>
                         <Box className={classes.cardContent}>
                             <Grid container>
                                 <Grid item xs>
                                     <Box className={classes.cardHead}>
                                         <Typography variant='h6'>
-                                            {todo.title}
+                                            {currentTodo.title}
                                         </Typography>
-                                        <Box onClick={e => e.stopPropagation()}>
-                                            <IconButton onClick={() => handleDelete(todo.id)}>
+                                        <Box onClick={e => e.stopPropagation()} display='flex' justifyContent='center' alignItems='center'>
+                                            <IconButton onClick={() => handleDelete(currentTodo.id)}>
                                                 <DeleteOutlined color='secondary' />
                                             </IconButton>
-                                            <Checkbox />
+                                            {currentTodo.complete ? <Done color='primary' /> : ((props.title.toLowerCase() === 'overdue') ?
+                                            <Clear color='secondary' /> : <Checkbox onClick={() => handleComplete(currentTodo)} />)}
                                         </Box>
                                     </Box>
                                 </Grid>
 
                                 <Grid item style={{ width: '100%' }}> 
                                     <Typography variant='body1' className={classes.cardBody}>
-                                        {todo.text}
+                                        {currentTodo.text}
                                     </Typography>
                                 </Grid>
 
                                 <Grid item xs>
                                     <Box className={classes.cardFooter}>
                                         <Typography variant='overline'>
-                                            {todo.priority}
+                                            {currentTodo.priority}
                                         </Typography>
                                         <Typography>
-                                            {todo.date}
+                                            {currentTodo.date}
                                         </Typography>
                                     </Box>
                                 </Grid>
                             </Grid>
                         </Box>
                     </Paper>
-                })}
+                }) :
+                <Box m='13rem auto'>
+                    <Typography variant='h4' color='textSecondary'>No tasks</Typography>
+                </Box>}
 
                 {todo && <ModalViewTodo isOpen={isOpen} closeModal={() => setIsOpen(false)} todo={todo} />}
                 </Box>
@@ -142,5 +158,6 @@ export default function TodoList(props){
 }
 
 TodoList.propTypes = {
-    title: propTypes.string
+    title: propTypes.string,
+    selector: propTypes.func.isRequired
 }

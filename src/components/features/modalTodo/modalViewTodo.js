@@ -1,8 +1,7 @@
 import { Fade, Modal, Paper, Box, FormControl, Typography, TextField, Button, Select, MenuItem, InputLabel, makeStyles } from '@material-ui/core'
 import propTypes from 'prop-types'
-import { useState } from 'react';
 import { useDispatch } from 'react-redux';
-import { createTodoAsync } from '../../../slices/todosSlice';
+import { deleteTodoAsync } from '../../../slices/todosSlice';
 
 const useStyles = makeStyles(theme => ({
     modalContainer:{
@@ -31,8 +30,9 @@ export default function ViewTodoModal({ isOpen, closeModal, todo }){
     const dispatch = useDispatch();
     const classes = useStyles();
 
-    function handleCreateTodo(){
-
+    function handleDeleteTodo(){
+        dispatch(deleteTodoAsync(todo.id));
+        closeModal();
     }
 
     function handleClose(){
@@ -74,7 +74,7 @@ export default function ViewTodoModal({ isOpen, closeModal, todo }){
                                         </Box>
 
                                         <Box  margin='10px' display='flex' justifyContent='flex-end'>
-                                            <Button color='secondary' variant='contained' onClick={handleCreateTodo}>Delete</Button>
+                                            <Button color='secondary' variant='contained' onClick={handleDeleteTodo}>Delete</Button>
                                         </Box>
                                     </Box>
                                 </FormControl>

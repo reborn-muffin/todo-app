@@ -2,13 +2,13 @@ import { Toolbar, Container, Tooltip, AppBar, Button, Hidden, Typography, Grid, 
     Divider, MenuItem, ListItemIcon, Fab, Paper } from "@material-ui/core"
 import TodoList from "./todoList"
 import { makeStyles } from "@material-ui/core/styles"
-import { TodayOutlined, MenuOutlined, DateRangeOutlined, CalendarTodayOutlined, EventBusyOutlined, AddOutlined } from '@material-ui/icons'
+import { TodayOutlined, MenuOutlined, DateRangeOutlined, EventBusyOutlined, AddOutlined } from '@material-ui/icons'
 import { useState } from "react"
 import { signout } from "../../slices/authSlice"
 import { useDispatch } from "react-redux"
 import { useHistory } from "react-router-dom"
 import CreateTodoModal from "./modalTodo/modalCreateTodo"
-import ViewTodoModal from './modalTodo/modalViewTodo'
+import { todaysTodoSelector, nextTodoSelector, overdueTodoSelector } from "../../selectors/todosSelectors"
 
 const useStyles = makeStyles((theme) => ({
     container: {
@@ -39,6 +39,7 @@ export default function TodoPage(){
     const [isOpen, setIsOpen] = useState(false);
     const [isOpenModal, setIsOpenModal] = useState(false);
     const [todolistTitle, setTodolistTitle] = useState('Today');
+    const [todoSelector, setTodoSelector] = useState({ value: todaysTodoSelector });
     const dispatch = useDispatch();
     
     const classes = useStyles();
@@ -57,8 +58,9 @@ export default function TodoPage(){
         history.push('/login');
     }
 
-    function handleMenu(value){
+    function handleMenu(value, selector){
         setTodolistTitle(value);
+        setTodoSelector(selector);
     }
 
     return (
@@ -79,7 +81,7 @@ export default function TodoPage(){
                     <Grid container>
                         <Grid item>
                             <Hidden xsDown>
-                                <MenuItem onClick={() => handleMenu('Today')}>
+                                <MenuItem onClick={() => handleMenu('Today', { value: todaysTodoSelector })}>
                                     <ListItemIcon>
                                         <TodayOutlined color='primary' />
                                     </ListItemIcon>
@@ -88,7 +90,7 @@ export default function TodoPage(){
 
                                 <Divider />
 
-                                <MenuItem onClick={() => handleMenu('Next')}>
+                                <MenuItem onClick={() => handleMenu('Next', { value: nextTodoSelector })}>
                                     <ListItemIcon>
                                         <DateRangeOutlined color='primary' />
                                     </ListItemIcon>
@@ -97,16 +99,7 @@ export default function TodoPage(){
 
                                 <Divider />
 
-                                <MenuItem onClick={() => handleMenu('Tomorrow')}>
-                                    <ListItemIcon>
-                                        <CalendarTodayOutlined color='primary' />
-                                    </ListItemIcon>
-                                    <Typography>Tomorrow</Typography>
-                                </MenuItem>
-
-                                <Divider />
-
-                                <MenuItem onClick={() => handleMenu('Overdue')}>
+                                <MenuItem onClick={() => handleMenu('Overdue', { value: overdueTodoSelector })}>
                                     <ListItemIcon>
                                         <EventBusyOutlined color='primary' />
                                     </ListItemIcon>
@@ -115,7 +108,7 @@ export default function TodoPage(){
                             </Hidden>
                             <Hidden smUp>
                                 <Drawer open={isOpen} onClose={toogleDrawer}>
-                                    <MenuItem onClick={() => handleMenu('Today')}>
+                                    <MenuItem onClick={() => handleMenu('Today', { value: todaysTodoSelector })}>
                                         <ListItemIcon>
                                             <TodayOutlined color='primary' />
                                         </ListItemIcon>
@@ -124,7 +117,7 @@ export default function TodoPage(){
 
                                     <Divider />
 
-                                    <MenuItem onClick={() => handleMenu('Next')}>
+                                    <MenuItem onClick={() => handleMenu('Next', { value: nextTodoSelector })}>
                                         <ListItemIcon>
                                             <DateRangeOutlined color='primary' />
                                         </ListItemIcon>
@@ -133,16 +126,7 @@ export default function TodoPage(){
 
                                     <Divider />
 
-                                    <MenuItem onClick={() => handleMenu('Tomorrow')}>
-                                        <ListItemIcon>
-                                            <CalendarTodayOutlined color='primary' />
-                                        </ListItemIcon>
-                                        <Typography>Tomorrow</Typography>
-                                    </MenuItem>
-
-                                    <Divider />
-
-                                    <MenuItem onClick={() => handleMenu('Overdue')}>
+                                    <MenuItem onClick={() => handleMenu('Overdue', { value: overdueTodoSelector })}>
                                         <ListItemIcon>
                                             <EventBusyOutlined color='primary' />
                                         </ListItemIcon>
@@ -153,7 +137,7 @@ export default function TodoPage(){
                         </Grid>
 
                         <Grid item xs>
-                            <TodoList title={todolistTitle} />
+                            <TodoList title={todolistTitle} selector={todoSelector} />
                         </Grid>
                         
                         <Tooltip title='Create task'>

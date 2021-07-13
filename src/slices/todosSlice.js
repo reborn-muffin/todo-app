@@ -14,7 +14,7 @@ export const createTodoAsync = todo => (dispatch, getState) => {
     })
 };
 
-export const getTodosAsync = () => dispatch => {
+export const getTodosAsync = () => (dispatch, getState) => {
     const dbRef = db.ref('todos');
 
     let todos = [];
@@ -24,8 +24,17 @@ export const getTodosAsync = () => dispatch => {
             todos = Object.values(snapshot.toJSON());
         }
     }).then(() => {
+        todos = todos.filter(todo => (todo.createdBy === getState().auth.currentUser));
+        
         dispatch(getTodo(todos))
     })
+}
+
+export const completeTodoAsync = todo => dispatch =>{
+    const dbRef = db.ref(`todos/${todo.id}`);
+    dbRef.set({ ...todo, complete: true });
+
+    dispatch(comleteTodo(todo.id));
 }
 
 export const deleteTodoAsync = id => dispatch =>{
@@ -49,9 +58,20 @@ const todosSlice = createSlice({
         },
         deleteTodo(state, action){
             state.todos = state.todos.filter(todo => todo.id !== action.payload);
+        },
+        comleteTodo(state, action){
+            const todos = state.todos.map(todo => {
+                if(todo.id === action.payload){
+                    todo.complete = true;
+                }
+
+                return todo;
+            });
+
+            state.todos = todos;
         }
     }
 });
 
-export const { createTodo, getTodo, deleteTodo } = todosSlice.actions;
+export const { createTodo, getTodo, deleteTodo, comleteTodo } = todosSlice.actions;
 export default todosSlice.reducer;
